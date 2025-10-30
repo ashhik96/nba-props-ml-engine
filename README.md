@@ -1,23 +1,12 @@
 # NBA Player Props Projection Model
 ### Advanced Machine Learning System for Sports Analytics & Betting Intelligence
-
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.39+-red.svg)](https://streamlit.io)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5+-orange.svg)](https://scikit-learn.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-<div align="center">
-  <img src="https://img.shields.io/badge/Status-Production-green.svg" alt="Status">
-  <img src="https://img.shields.io/badge/Accuracy-85%25+-success.svg" alt="Accuracy">
-</div>
-
 ---
 
 ## 🎯 Project Overview
 
 A production-grade sports analytics platform that combines machine learning, statistical modeling, and real-time data pipelines to predict NBA player performance metrics. Built to demonstrate end-to-end data science capabilities—from data engineering and feature extraction to model development and interactive deployment.
 
-**Live Demo:** [Streamlit App](#) | **Portfolio:** [Your Portfolio Link](#)
+**Live Demo:** 
 
 ---
 
@@ -96,6 +85,8 @@ Sophisticated feature extraction pipeline including:
 - **NBA Stats API**: Official game logs, team statistics, rosters
 - **HashtagBasketball**: Defensive rankings by position (web scraping with `beautifulsoup4`)
 - **The Odds API**: Real-time betting lines from FanDuel (optional integration)
+  - ⚠️ **Free Tier**: Uses free tier with limited monthly credits (~500 requests)
+  - **Intelligent Fallback**: When API credits exhausted or FanDuel lacks lines for a player, the system automatically uses the model's prediction as the baseline line
 - **Rate Limiting**: Implements 600ms delays to respect API quotas
 
 #### **Intelligent Caching System** (`database.py`)
@@ -178,12 +169,28 @@ else:
 - **Real-time Updates**: Table refreshes as each player completes
 - **Interactive Line Adjustment**: Users can override betting lines
 - **Edge Calculation**: Shows model advantage vs. sportsbook lines
+- **Smart Line Fallback**: 
+  - Prioritizes FanDuel lines when available via The Odds API
+  - Falls back to model prediction as baseline when:
+    - API credits depleted (free tier: ~500 requests/month)
+    - FanDuel doesn't offer a line for that player/stat
+    - API connection issues
+  - Users can manually adjust any line regardless of source
 
 #### **5. Hit Rate Analytics**
 ```python
 # Historical success rate vs. betting lines
 hit_rate = (games_over_line / total_games) * 100
 ```
+
+#### **6. Graceful Degradation**
+- **Self-Sufficient Operation**: System functions fully without external betting line APIs
+- **Automatic Fallbacks**: When The Odds API is unavailable:
+  - Uses model predictions as baseline betting lines
+  - All features remain operational (edge calculation, hit rates, etc.)
+  - User experience unchanged - can still manually adjust lines
+- **Cost-Effective**: Free tier API limits (~500 requests/month) are sufficient for personal use
+- **Production-Ready**: Handles API failures, missing data, and rate limits transparently
 
 ---
 
@@ -243,6 +250,26 @@ streamlit run app.py
 ```
 Local URL: http://localhost:8501
 ```
+
+### Configuration (Optional)
+
+#### **The Odds API Setup**
+The system works fully without an API key, using model predictions as betting lines. To enable live FanDuel lines:
+
+1. **Get Free API Key**: Sign up at [The Odds API](https://the-odds-api.com/) (free tier: ~500 requests/month)
+
+2. **Add Key to `data_fetcher.py`**:
+```python
+# Line 156 in data_fetcher.py
+def fetch_fanduel_lines(event_id, api_key="YOUR_API_KEY_HERE"):
+```
+
+3. **Fallback Behavior**:
+   - API credits exhausted → Uses model prediction as line
+   - No FanDuel line for player → Uses model prediction as line
+   - API disabled → Works normally with predictions only
+
+**Note**: Most users run without The Odds API since the model generates reliable baseline lines automatically.
 
 ---
 
@@ -431,10 +458,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👤 Author
 
 **[Your Name]**
-- Portfolio: [yourportfolio.com](#)
-- LinkedIn: [linkedin.com/in/yourprofile](#)
-- GitHub: [@yourusername](#)
-- Email: your.email@example.com
+- LinkedIn: [linkedin.com/in/in/ashik-rahman-998364379/](#)
+- Email: ashhik96@gmial.com
 
 ---
 
@@ -450,6 +475,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## ⚖️ Disclaimer
 
 This project is for educational and portfolio demonstration purposes only. Sports betting involves financial risk. This tool should not be used as the sole basis for betting decisions. Always gamble responsibly and within your means.
+
+**API Usage**: The Odds API integration uses a free tier account with limited monthly requests. When limits are reached or lines are unavailable, the system automatically uses model predictions as baselines. This does not affect functionality but means displayed "lines" may be model-generated rather than live sportsbook data.
 
 ---
 
